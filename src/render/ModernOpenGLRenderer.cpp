@@ -398,6 +398,7 @@ void ModernOpenGLRenderer::RenderFrame()
         partList++;
     }
     
+    // Draw wireframe in editor mode.
     if (selectedPart != nullptr) {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
