@@ -12,6 +12,9 @@
 #define SKY_VERT "sky_vert.glsl"
 #define SKY_FRAG "sky_frag.glsl"
 
+#define WIRE_VERT "wireframe_vert.glsl"
+#define WIRE_FRAG "wireframe_frag.glsl"
+
 #define OBJ_VERT "world_vert.glsl"
 #define OBJ_FRAG "world_frag.glsl"
 
@@ -118,6 +121,7 @@ LegacyOpenGLRenderer::LegacyOpenGLRenderer(SDL_Window *window) : AbstractRendere
 
     // Initialize shaders.
     skyShader = LoadShader(SKY_VERT, SKY_FRAG);
+    wireframeShader = LoadShader(WIRE_VERT, WIRE_FRAG);
     worldShader = LoadShader(OBJ_VERT, OBJ_FRAG);
     ApplyLights();
     ApplyProjection();
@@ -216,6 +220,10 @@ void LegacyOpenGLRenderer::ApplyProjection()
 
     skyShader->Use();
     skyShader->SetMat4("proj", proj);
+    __glCheckErrors();
+    
+    wireframeShader->Use();
+    wireframeShader->SetMat4("proj", proj);
     __glCheckErrors();
 
     worldShader->Use();
@@ -324,6 +332,17 @@ void LegacyOpenGLRenderer::RenderFrame()
         Draw(*worldShader, **partList, defaultAmbient);
         partList++;
     }
+    
+    // Draw wireframe in editor mode.
+    if (selectedPart != nullptr) {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        Draw(*wireframeShader, *selectedPart, defaultAmbient);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+    }
 }
 
 void LegacyOpenGLRenderer::AdjustAmbient(OpenGLShader &shader, float intensity)
@@ -337,6 +356,10 @@ void LegacyOpenGLRenderer::ApplyView()
 
     worldShader->Use();
     worldShader->SetMat4("view", glMatrix);
+    __glCheckErrors();
+    
+    wireframeShader->Use();
+    wireframeShader->SetMat4("view", glMatrix);
     __glCheckErrors();
 }
 
@@ -472,4 +495,7 @@ void LegacyOpenGLRenderer::SetTransforms(const CBSPPart &part) {
     worldShader->Use();
     worldShader->SetMat4("modelview", mv);
     worldShader->SetMat3("normalTransform", normalMat, true);
+    
+    wireframeShader->Use();
+    wireframeShader->SetMat4("modelview", mv);
 }
