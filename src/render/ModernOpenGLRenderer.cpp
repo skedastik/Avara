@@ -401,12 +401,17 @@ void ModernOpenGLRenderer::RenderFrame()
     // Draw wireframe in editor mode.
     if (selectedPart != nullptr) {
         glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glCullFace(GL_FRONT);
+        wireframeShader->Use();
+        wireframeShader->SetFloat("pseudoAlpha", 0.25f);
+        Draw(*wireframeShader, *selectedPart, defaultAmbient, false);
+        Draw(*wireframeShader, *selectedPart, defaultAmbient, true);
+        glCullFace(GL_BACK);
+        wireframeShader->SetFloat("pseudoAlpha", 1.0f);
         Draw(*wireframeShader, *selectedPart, defaultAmbient, false);
         Draw(*wireframeShader, *selectedPart, defaultAmbient, true);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
     }
 
