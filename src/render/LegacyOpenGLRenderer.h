@@ -37,6 +37,7 @@ private:
     
     CBSPWorldImpl *dynamicWorld;
     std::unique_ptr<OpenGLShader> skyShader;
+    std::unique_ptr<OpenGLShader> wireframeShader;
     std::unique_ptr<OpenGLShader> worldShader;
 
     GLsizei resolution[2];
